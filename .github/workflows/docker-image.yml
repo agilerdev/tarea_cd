@@ -44,12 +44,12 @@ jobs:
           NEW_VERSION: ${{ steps.version.outputs.version }}
           RANDOM_NUMBER: ${{ steps.random.outputs.random_number }}
         run: |
-          docker build -t agiler1699/tarea8:$NEW_VERSION_$RANDOM_NUMBER .
+          docker build -t agiler1699/tarea8:$NEW_VERSION-$RANDOM_NUMBER .
           docker build -t agiler1699/tarea8:latest .
 
       - name: Push Docker Image
         env:
           NEW_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          docker push agiler1699/tarea8:$NEW_VERSION_$RANDOM_NUMBER
+          docker push agiler1699/tarea8:$NEW_VERSION-$RANDOM_NUMBER
           docker push agiler1699/tarea8:latest
