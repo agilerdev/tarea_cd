@@ -2,48 +2,54 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: Git Semantic Version
-      uses: PaulHatch/semantic-version@v4.0.3
-      with:
-        major_pattern: "major:"
-        minor_pattern: "feat:"
-        format: "${major}.${minor}.${patch}-prerelease${increment}"
-      id: version
-      
-    - name: Docker Login
-      env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Git Semantic Version
+        uses: PaulHatch/semantic-version@v4.0.3
+        with:
+          major_pattern: 'major:'
+          minor_pattern: 'feat:'
+          format: '${major}.${minor}.${patch}-prerelease${increment}'
+        id: version
 
-      run: |
-       docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-       
-       
-    - name: Build Docker Image
-      env:
-        NEW_VERSION: ${{ steps.version.outputs.version }}
-      run: |
-        docker build -t agiler1699/tarea8:$NEW_VERSION .
-        docker build -t agiler1699/tarea8:latest .
-        
-    - name: Push Docker Image
-      env:
-        NEW_VERSION: ${{ steps.version.outputs.version }}
-      run: |
-        docker push agiler1699/tarea8:$NEW_VERSION
-        docker push agiler1699/tarea8:latest
+        # - explicación: Este paso genera un número aleatorio entre 1 y 100 y lo guarda en una variable de entorno llamada RANDOM_NUMBER
+      - name: Numero aleatorio
+        id: random
+        run: |
+          echo "Generando número aleatorio..."
+          RANDOM_NUMBER=$(shuf -i 10-50 -n 1)
+          echo "::set-output name=random_number::$RANDOM_NUMBER"
+
+      - name: Docker Login
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+      - name: Build Docker Image
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.version }}
+          RANDOM_NUMBER: ${{ steps.random.outputs.random_number }}
+        run: |
+          docker build -t agiler1699/tarea8:$NEW_VERSION_$RANDOM_NUMBER .
+          docker build -t agiler1699/tarea8:latest .
+
+      - name: Push Docker Image
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          docker push agiler1699/tarea8:$NEW_VERSION_$RANDOM_NUMBER
+          docker push agiler1699/tarea8:latest
